@@ -1,4 +1,9 @@
-import { addAreaService, viewAreaService, updateArea, deleteAreaService } from '../../services/area.service'
+import {
+    addAreaService,
+    viewAreaService,
+    updateArea,
+    deleteAreaService
+} from '../../services/area.service'
 import { validationResult } from 'express-validator';
 
 async function addArea(req, res) {
@@ -64,7 +69,7 @@ async function editArea(req, res) {
         const { areaname, pincode } = req.body;
 
         const update = await updateArea(areaId, areaname, pincode)
-        res.status(200).send({ message: 'Success !', status: 200, data: update })
+        res.status(200).send({ message: update, status: 200 })
 
     } catch (error) {
         res.status(500).send({ message: error.message, status: 500 });

@@ -1,11 +1,20 @@
-import { RegModel } from '../../models/models';
+import { RegModel, paymentModel, OrderModel } from '../../models/models';
 import { validationResult } from 'express-validator';
 import { MakeToken } from '../../services/jwtTokenServices';
 import cryptoRandomString from 'crypto-random-string';
 import { createUser } from '../../services/User.service';
 import bcrypt from 'bcryptjs';
-import { loginUserWithEmailVerification, ForgotPassword, Token } from '../../services/auth.service';
-import { contactUsService, FeedbackService, updateUser } from '../../services/User.service';
+import {
+    loginUserWithEmailVerification,
+    ForgotPassword,
+    Token
+} from '../../services/auth.service';
+import {
+    contactUsService,
+    FeedbackService,
+    updateUser,
+    viewUserProfile
+} from '../../services/User.service';
 require('dotenv').config();
 
 async function RegUser(req, res) {
@@ -152,17 +161,65 @@ const UpdateProfile = async (req, res) => {
     try {
 
         const { userId } = req.params;
-        const { username, mobile, dob, email } = req.body;
-        const query = { email: email }
+        const { username, mobile, dob } = req.body;
 
         const filter = { _id: userId }
-        const update = { username: username, mobile: mobile, dob: dob, email: email }
+        const update = { username: username, mobile: mobile, dob: dob }
 
-        const editUser = await updateUser(query, filter, update)
+        const editUser = await updateUser(filter, update, { new: true })
         res.status(200).send({ message: "Update Successfull !", status: 200, data: editUser })
 
     } catch (error) {
         res.status(400).send({ meesage: error.message, status: 400, data: null })
+    }
+}
+
+const storePaymentdetails = async (req, res) => {
+
+    try {
+        const { amount, email, OrderId } = req.body;
+
+        const data = await paymentModel.create({
+            amount: amount,
+            email: email,
+            OrderId: OrderId
+        })
+
+        const saveDetail = await data.save()
+
+        const Amount = saveDetail.amount;
+
+        if (!saveDetail) {
+            throw new Error("Unable To Store Payment Data !")
+        } else {
+            if (Amount == null) {
+                const filter = { _id: OrderId }
+                const update = { OrderStatus: "Failed" }
+                var fail = await OrderModel.findByIdAndUpdate(filter, update, { new: true })
+                res.status(200).send({ message: "Data Stored !", status: 200, data: saveDetail, Payment_status: fail.OrderStatus })
+            }
+            else {
+                const Paid = await OrderModel.findByIdAndUpdate({ _id: OrderId }, { OrderStatus: "Paid" }, { new: true })
+                res.status(200).send({ message: "Data Stored !", status: 200, data: saveDetail, Payment_status: Paid.OrderStatus })
+            }
+        }
+
+    } catch (error) {
+        res.status(400).send({ message: error.message, status: 400, data: null })
+    }
+}
+
+const userProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        const query = { _id: userId }
+
+        const user = await viewUserProfile(query)
+        res.status(200).send({ mesage: "Loggein User Profile !", status: 200, data: user })
+
+    } catch (error) {
+        res.status(400).send({ message: error.message, data: null, status: 400 })
     }
 }
 
@@ -174,6 +231,8 @@ export {
     verifyToken,
     deleteAccount,
     Feedback,
-    UpdateProfile
+    UpdateProfile,
+    storePaymentdetails,
+    userProfile
 }
 

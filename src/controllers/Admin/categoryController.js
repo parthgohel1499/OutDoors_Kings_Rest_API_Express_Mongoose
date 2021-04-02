@@ -7,22 +7,21 @@ import {
 } from '../../services/category.service';
 require('dotenv').config();
 
-
 async function addcategory(req, res) {
 
     try {
-        console.log("image path : ", req.file);
-
         const { categoryname, description, hordingsize } = req.body;
-        const imagePath = req.file ? req.file.path : null
 
-        const insertCategory = await addCategoryService(categoryname, description, hordingsize, imagePath)
+        const categoryImage = req.file.path
+
+        const insertCategory = await addCategoryService(categoryname, description, hordingsize, categoryImage)
         res.status(200).send({ message: "Category Added Success !", status: 200, data: insertCategory })
 
     } catch (error) {
         res.status(400).send({ message: error.message, status: 400, data: null });
     }
 }
+
 
 async function viewCategory(req, res) {
 
@@ -41,7 +40,8 @@ async function editCategory(req, res) {
     try {
         const { categoryId } = req.params;
         var findId = await hordingsCategory.findOne({ _id: categoryId })
-        const imageCondition = req.file ? req.file.path : findId.image
+        const imageCondition = req.file ? req.file.path : null
+
         const { categoryname, description, hordingsize } = req.body;
 
         const updateCategory = await editCategoryService(categoryId, imageCondition, categoryname, description, hordingsize)
@@ -50,6 +50,7 @@ async function editCategory(req, res) {
 
     } catch (error) {
         res.status(error.status || 400).send({ message: error.message, status: process.env.FAILED });
+
     }
 }
 

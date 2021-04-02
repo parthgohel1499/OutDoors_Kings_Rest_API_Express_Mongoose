@@ -3,7 +3,7 @@ import { Orders, getOrderOfLoggedinUser, viewOrderByIdService } from '../../serv
 async function addOrder(req, res) {
 
     try {
-        const Image = req.file.path
+        const Image = req.file.path;
         const UserId = req.userId;
         const { CatId, AreaId, FindPackageId, FirstName, LastName, Address, Discription, StartDate } = req.body;
 
@@ -24,8 +24,11 @@ async function getOrders(req, res) {
         console.log("id from view controller : ", UserId);
 
         const viewOrderLoggedinUser = await getOrderOfLoggedinUser(UserId)
-        res.status(200).send({ message: "View Loggedin User Order ! ", status: 200, data: viewOrderLoggedinUser })
 
+        if (viewOrderLoggedinUser.length == 0) {
+            throw new Error("No Orders Yet From Your Account !")
+        }
+        res.status(200).send({ message: "View Loggedin User Order ! ", status: 200, data: viewOrderLoggedinUser })
 
     } catch (error) {
         res.status(process.env.FAILED).send({ message: error.message, status: process.env.FAILED, data: null })

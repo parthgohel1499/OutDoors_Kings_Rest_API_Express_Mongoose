@@ -1,4 +1,9 @@
-import { PackageAdd, PackageView, PackageEdit, PackageDelete } from '../../services/package.service'
+import {
+    PackageAdd,
+    PackageView,
+    PackageEdit,
+    PackageDelete
+} from '../../services/package.service'
 
 async function addPackage(req, res, next) {
     try {

@@ -86,6 +86,11 @@ async function OrderStatus(req, res) {
         const { OrderId } = req.query;
         const { Status } = req.body;
         const data = await updateOrderStatusByAdmin(OrderId, Status)
+        console.log("data : ", data);
+
+        if (data.length == 0) {
+            throw new Error("No Pending Orders !")
+        }
         res.send({ message: "OrderData !", status: 200, data: data })
     } catch (error) {
         res.status(400).send({ message: error.message, status: 400, data: null })

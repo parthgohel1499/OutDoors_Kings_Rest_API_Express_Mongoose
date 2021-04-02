@@ -1,5 +1,5 @@
-import { PackageModel, RegModel } from '../models/models';
-import { verifyObjectId } from '../services/verifyId'
+import { PackageModel } from '../models/models';
+import { verifyObjectId } from '../utils/verifyId'
 
 const PackageAdd = async (Packagename, Price, Duration, id) => {
     const Package = new PackageModel({
@@ -9,7 +9,7 @@ const PackageAdd = async (Packagename, Price, Duration, id) => {
         createdBy: id
     })
 
-    const isExist = await PackageModel.findOne({ Packagename: Packagename });
+    const isExist = await PackageModel.FindPackageByName({ Packagename: Packagename });
 
     if (!isExist) {
         const AddPackage = await Package.save();
@@ -29,7 +29,7 @@ const PackageAdd = async (Packagename, Price, Duration, id) => {
 const PackageView = async (packageId) => {
     if (packageId) {
         if (verifyObjectId(packageId)) {
-            const getPackage = await PackageModel.findById({ _id: packageId })
+            const getPackage = await PackageModel.FindPackageById({ _id: packageId })
             if (!getPackage) {
                 throw {
                     status: process.env.FAILED,
@@ -45,7 +45,7 @@ const PackageView = async (packageId) => {
             data: null
         }
     }
-    const getAllPackages = await PackageModel.find()
+    const getAllPackages = await PackageModel.FindAllPackage()
 
     return getAllPackages;
 }
@@ -55,19 +55,23 @@ const PackageEdit = async (packageId, Packagename, Price, Duration) => {
         if (verifyObjectId(packageId)) {
 
 
-            const filter = { _id: packageId };
-            const update = { Packagename: Packagename, Price: Price, Duration: Duration }
+            const isExist = await PackageModel.FindPackageByName({ Packagename: Packagename })
+            if (!isExist) {
+                const filter = { _id: packageId };
+                const update = { Packagename: Packagename, Price: Price, Duration: Duration }
 
-            const FindPackage = await PackageModel.findByIdAndUpdate(filter, update, { new: true })
-
-            if (!FindPackage) {
-                throw {
-                    status: process.env.NOTFOUND,
-                    message: "Package Not Found !",
-                    data: null
+                const FindPackage = await PackageModel.FindPackageAndUpdate(filter, update, { new: true })
+                if (!FindPackage) {
+                    throw {
+                        status: process.env.NOTFOUND,
+                        message: "Package Not Found !",
+                        data: null
+                    }
                 }
+                return "Update Successfull !"
             }
-            return "Update Successfull !"
+            throw new Error("This Package Is Already Exist !")
+
         }
         throw new Error("Incorrect UserId !")
     }
@@ -78,7 +82,7 @@ const PackageEdit = async (packageId, Packagename, Price, Duration) => {
 const PackageDelete = async (packageId) => {
     if (verifyObjectId(packageId)) {
         {
-            const findRecord = await PackageModel.findById({ _id: packageId })
+            const findRecord = await PackageModel.FindPackageById({ _id: packageId })
 
             if (!findRecord) {
                 throw {
@@ -87,7 +91,7 @@ const PackageDelete = async (packageId) => {
                     data: null
                 }
             }
-            const deleteRecord = await PackageModel.deleteOne({ _id: packageId })
+            const deleteRecord = await PackageModel.DeletePackage({ _id: packageId })
             if (!deleteRecord) {
                 throw {
                     status: process.env.NOTFOUND,

@@ -1,10 +1,9 @@
 import { RegModel } from '../models/models';
-import SendMail from '../../src/services/sendMail';
+import { sMail } from '../../src/services/sendMail';
 
 const loginUserWithEmailVerification = async (email) => {
     const query = { email: email };
     const user = await RegModel.checkEmail(query);
-    console.log(user);
     if (!user) {
         throw new Error("User Not Found !")
     }
@@ -25,7 +24,7 @@ const ForgotPassword = async (filter, update) => {
     const subject = "From Outdoor Kings , for update password !"
     const html = `link to create new password : http://localhost:3030/forgot verification code : ${RandomString}`
 
-    const TokenMail = await SendMail.sMail(email, RandomString, subject, html);
+    const TokenMail = await sMail(email, RandomString, subject, html);
     return TokenMail;
 }
 

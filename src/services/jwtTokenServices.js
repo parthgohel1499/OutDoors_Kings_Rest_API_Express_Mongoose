@@ -53,7 +53,7 @@ async function userAuthentication(req, res, next) {
         decoded1 = jwt.verify(token, process.env.SECRET)
 
         const userData = await RegModel.findOne({ _id: decoded1.id, isAdmin: false })
-        console.log("id from user authentication : ", userData);
+        // console.log("id from user authentication : ", userData);
 
         if (!userData) {
             var error = {

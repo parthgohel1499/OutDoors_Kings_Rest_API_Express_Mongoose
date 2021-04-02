@@ -1,13 +1,16 @@
 import express from 'express';
 const router = express.Router();
+import LINK from '../../utils/InternalLinks'
 import { addOrder, getOrders, viewOrderById } from '../../controllers/Users/OrderControllers';
-import multerImage from '../../services/imageUpload';
+import multerImage from '../../utils/imageUpload';
 import { userAuthentication } from '../../services/jwtTokenServices';
 
-router.post('/Make-Orders', userAuthentication, multerImage.upload.single('Image'), addOrder)
+const { ORDER } = LINK
 
-router.get('/view-orders', userAuthentication, getOrders)
+router.post(ORDER.MAKE_ORDER, userAuthentication, multerImage.upload.single('Image'), addOrder)
 
-router.get('/getOrderById/:OrderId', userAuthentication, viewOrderById)
+router.get(ORDER.VIEW_ORDER, userAuthentication, getOrders)
+
+router.get(ORDER.VIEW_ORDER_BY_ID, userAuthentication, viewOrderById)
 
 module.exports = router;

@@ -41,20 +41,26 @@ const FeedbackService = async (Message, UserName) => {
     return saveFeedback;
 }
 
-const updateUser = async (query, filter, update) => {
-    if (!await RegModel.checkEmail(query)) {
-        const updateUser = await RegModel.verifyIdAndModify(filter, update)
-        if (!updateUser) {
-            throw new Error("Check Your Details ! !")
-        }
-        return updateUser;
+const updateUser = async (filter, update) => {
+    const updateUser = await RegModel.verifyIdAndModify(filter, update)
+    if (!updateUser) {
+        throw new Error("Check Your Details ! !")
     }
-    throw new Error("User Is Already Exist !")
+    return updateUser;
 }
 
+const viewUserProfile = async (query) => {
+    const profile = await RegModel.CheckById(query)
+
+    if (!profile) {
+        throw new Error("User Not Found !")
+    }
+    return profile;
+}
 export {
     createUser,
     contactUsService,
     FeedbackService,
-    updateUser
+    updateUser,
+    viewUserProfile
 }

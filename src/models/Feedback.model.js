@@ -7,5 +7,27 @@ const feedback = mongoose.Schema({
 
 }, { timestamps: true, versionKey: false });
 
+feedback.statics.deleteFeedBack = async function (query) {
+    try {
+        return await FeedbackModel.findByIdAndDelete(query);
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+feedback.statics.FindAllFeedBack = async function () {
+    try {
+        return await FeedbackModel.find()
+            .populate({
+                path: 'User',
+                model: 'RegSchema',
+                select: 'username'
+            });
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+
 const FeedbackModel = mongoose.model('feedback', feedback);
 export { FeedbackModel }

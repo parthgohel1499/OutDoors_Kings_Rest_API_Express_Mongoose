@@ -1,22 +1,25 @@
 import express from 'express';
 const router = express.Router();
+import LINK from '../../utils/InternalLinks';
 import { EditUser, viewUser, deleteUser, viewContactUs, deleteContactUs, OrderStatus, allOrders, viewFeedback } from '../../controllers/Admin/adminController';
 import { adminAuthentication } from '../../services/jwtTokenServices';
 
-router.get('/viewuser', adminAuthentication, viewUser);
+const { ADMIN } = LINK
 
-router.delete('/deleteuser/:userId', adminAuthentication, deleteUser);
+router.get(ADMIN.VIEWUSER, adminAuthentication, viewUser);
 
-router.put('/editUser/:userId', adminAuthentication, EditUser);
+router.delete(ADMIN.DELETE_USER, adminAuthentication, deleteUser);
 
-router.get('/view/contactUs', adminAuthentication, viewContactUs);
+router.put(ADMIN.UPDATE_USER, adminAuthentication, EditUser);
 
-router.delete('/delete/contactUs/:userId', adminAuthentication, deleteContactUs);
+router.get(ADMIN.VIEW_CONTACTUS, adminAuthentication, viewContactUs);
 
-router.post('/Accept-Reject/Order', adminAuthentication, OrderStatus)
+router.delete(ADMIN.DELETE_CONTACTUS, adminAuthentication, deleteContactUs);
 
-router.get('/view/all-orders', adminAuthentication, allOrders)
+router.post(ADMIN.UPDATE_ORDER_STATUS, adminAuthentication, OrderStatus)
 
-router.get('/view-delete/feedback', adminAuthentication, viewFeedback)
+router.get(ADMIN.ALLORDERS, adminAuthentication, allOrders)
+
+router.get(ADMIN.VIEW_DELETE_FEEDBACK, adminAuthentication, viewFeedback)
 
 module.exports = router;

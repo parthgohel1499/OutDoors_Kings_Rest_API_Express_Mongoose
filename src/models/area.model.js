@@ -17,6 +17,38 @@ areaSchema.statics.FindAreaById = async function (query) {
     }
 };
 
+areaSchema.statics.FindAreaByName = async function (query) {
+    try {
+        return await areaModel.findOne(query);
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+areaSchema.statics.FindAllAreas = async function (query) {
+    try {
+        return await areaModel.find(query);
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+areaSchema.statics.updateArea = async function (filter, update) {
+    try {
+        return await areaModel.updateOne(filter, update);
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+areaSchema.statics.deleteArea = async function (query) {
+    try {
+        return await areaModel.deleteOne(query);
+    } catch (error) {
+        return { error: error };
+    }
+};
+
 const areaModel = mongoose.model('areaModel', areaSchema);
 //module.exports = areaModel;
 

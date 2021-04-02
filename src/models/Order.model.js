@@ -17,6 +17,65 @@ const Orders = mongoose.Schema({
 
 }, { timestamps: true, versionKey: false });
 
+Orders.statics.findOrderAndUpdate = async function (filter, update) {
+    try {
+        return await OrderModel.findOneAndUpdate(filter, update)
+            .populate({
+                path: 'User',
+                model: 'RegSchema',
+                select: 'username email gender'
+            }).
+            populate({
+                path: 'Category',
+                model: 'hordingsCategory',
+                select: 'categoryname description hordingsize image'
+            })
+            .populate({
+                path: 'Area',
+                model: 'areaModel',
+                select: 'areaname pincode'
+            })
+            .populate({
+                path: 'Package',
+                model: 'Packages',
+                select: 'Packagename Price Duration'
+            })
+
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+Orders.statics.FindOrders = async function (query) {
+    try {
+        return await OrderModel.find(query)
+            .populate({
+                path: 'User',
+                model: 'RegSchema',
+                select: 'username email gender'
+            }).
+            populate({
+                path: 'Category',
+                model: 'hordingsCategory',
+                select: 'categoryname description hordingsize image'
+            })
+            .populate({
+                path: 'Area',
+                model: 'areaModel',
+                select: 'areaname pincode'
+            })
+            .populate({
+                path: 'Package',
+                model: 'Packages',
+                select: 'Packagename Price Duration'
+            })
+
+    } catch (error) {
+        return { error: error };
+    }
+};
+
+
 const OrderModel = mongoose.model('Orders', Orders);
 
 export { OrderModel }

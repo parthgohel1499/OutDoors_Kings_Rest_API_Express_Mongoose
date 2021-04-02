@@ -37,4 +37,4 @@ contactUs.statics.verifyIdAndDelete = async function (query) {
 
 const contactUsModel = mongoose.model('contactUs', contactUs);
 
-export default contactUsModel;
+export { contactUsModel };

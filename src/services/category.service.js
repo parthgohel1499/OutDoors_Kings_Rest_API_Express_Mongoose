@@ -1,16 +1,16 @@
 import { hordingsCategory } from '../models/models';
-import { verifyObjectId } from '../services/verifyId';
+import { verifyObjectId } from '../utils/verifyId';
 
-const addCategoryService = async (categoryname, description, hordingsize, imagePath) => {
+const addCategoryService = async (categoryname, description, hordingsize, categoryImage) => {
     const category = new hordingsCategory({
         categoryname: categoryname,
         description: description,
         hordingsize: hordingsize,
-        image: imagePath
+        image: categoryImage
     });
 
-    const isExsist = await hordingsCategory.findOne({ categoryname: categoryname });
-    // console.log("is exists : ", isExsist);
+    const isExsist = await hordingsCategory.FindCategoryByName({ categoryname: categoryname });
+
 
     if (!isExsist) {
         const addCategory = await category.save()
@@ -26,7 +26,7 @@ const addCategoryService = async (categoryname, description, hordingsize, imageP
 const viewCategoryService = async (categoryId) => {
     if (categoryId) {
         if (verifyObjectId(categoryId)) {
-            const viewCategory = await hordingsCategory.findById({ _id: categoryId })
+            const viewCategory = await hordingsCategory.FindCategoryById({ _id: categoryId })
 
             if (!viewCategory) {
                 throw new Error("Not Found !")
@@ -36,7 +36,7 @@ const viewCategoryService = async (categoryId) => {
         throw new Error("incorrect Category Id !")
     }
     else {
-        const viewAllCategory = await hordingsCategory.find()
+        const viewAllCategory = await hordingsCategory.FindAllCategory()
         console.log(viewAllCategory);
 
         if (!viewAllCategory) {
@@ -53,19 +53,18 @@ const viewCategoryService = async (categoryId) => {
 const editCategoryService = async (categoryId, imageCondition, categoryname, description, hordingsize) => {
     if (categoryId) {
         if (verifyObjectId(categoryId)) {
-            var findId = await hordingsCategory.findOne({ _id: categoryId })
+            var findId = await hordingsCategory.FindCategoryById({ _id: categoryId })
             const path = imageCondition
 
             if (!findId) {
                 throw new Error("Not Exist !")
             }
-
             const filter = { _id: categoryId }
             const update = { categoryname: categoryname, description: description, hordingsize: hordingsize, image: path }
 
-            await hordingsCategory.updateOne(filter, update)
+            await hordingsCategory.UpdateCategory(filter, update)
 
-            return "category is updated successfully !";
+            return "Update Successfull !";
         }
         throw new Error("Enter Valid Id !")
     }
@@ -76,12 +75,13 @@ const deleteCategoryService = async (categoryId) => {
     if (categoryId) {
         if (verifyObjectId(categoryId)) {
 
-            const isExist = await hordingsCategory.findById({ _id: categoryId });
+            const query = { _id: categoryId }
+            const isExist = await hordingsCategory.FindCategoryById(query);
 
             if (!isExist) {
                 throw new Error("This Category Is Not Exist !")
             }
-            await hordingsCategory.deleteOne({ _id: categoryId })
+            await hordingsCategory.DeleteCategory({ _id: categoryId })
 
             return "Category Delete Successfull !"
         }

@@ -1,5 +1,5 @@
 import { areaModel } from '../models/models';
-import { verifyObjectId } from '../services/verifyId'
+import { verifyObjectId } from '../utils/verifyId'
 
 const addAreaService = async (areaname, pincode) => {
     const addArea = new areaModel({
@@ -7,7 +7,8 @@ const addAreaService = async (areaname, pincode) => {
         pincode: pincode
     })
 
-    const isExist = await areaModel.findOne({ areaname: areaname })
+    const query = { areaname: areaname };
+    const isExist = await areaModel.FindAreaByName(query)
 
     if (!isExist) {
         const insertarea = await addArea.save();
@@ -23,8 +24,9 @@ const addAreaService = async (areaname, pincode) => {
 const viewAreaService = async (areaId) => {
     if (areaId) {
         if (verifyObjectId(areaId)) {
-            const findId = await areaModel.findById({ _id: areaId })
-            console.log("findId from service : ", findId);
+            const query = { _id: areaId }
+            const findId = await areaModel.FindAreaById(query);
+
             if (!findId) {
                 throw new Error("Not Exist !")
             }
@@ -32,7 +34,7 @@ const viewAreaService = async (areaId) => {
         }
         throw new Error("Incorrect User Id !")
     }
-    const getAllData = await areaModel.find();
+    const getAllData = await areaModel.FindAllAreas();
     console.log("all area : ", getAllData);
     return getAllData;
 }
@@ -40,18 +42,18 @@ const viewAreaService = async (areaId) => {
 const updateArea = async (areaId, areaname, pincode) => {
     if (verifyObjectId(areaId)) {
 
-        const findArea = await areaModel.findOne({ _id: areaId })
+        const findArea = await areaModel.findById({ _id: areaId })
         if (!findArea) {
             throw new Error("Area Not Found !")
         }
-        const checkArea = await areaModel.findOne({ areaname: areaname });
+        const checkArea = await areaModel.FindAreaByName({ areaname: areaname });
 
         if (!checkArea) {
             const filter = { _id: areaId }
             const update = {
                 areaname: areaname, pincode: pincode
             }
-            await areaModel.updateOne(filter, update)
+            await areaModel.updateArea(filter, update)
 
             return "Area is updated successfully !"
         }
@@ -62,12 +64,12 @@ const updateArea = async (areaId, areaname, pincode) => {
 
 const deleteAreaService = async (areaId) => {
     if (verifyObjectId(areaId)) {
-        const isExist = await areaModel.findById({ _id: areaId });
+        const isExist = await areaModel.FindAreaById({ _id: areaId });
 
         if (!isExist) {
             throw new Error("This Area Is Not Exist !")
         }
-        await areaModel.deleteOne({ _id: areaId })
+        await areaModel.deleteArea({ _id: areaId })
         return "Area Delete Successfull !"
     }
     throw new Error("Incorrect ID !")

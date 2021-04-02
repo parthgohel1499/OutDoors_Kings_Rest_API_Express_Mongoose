@@ -1,5 +1,5 @@
 import { RegModel, OrderModel, FeedbackModel, contactUsModel } from '../models/models'
-import { verifyObjectId } from '../services/verifyId'
+import { verifyObjectId } from '../utils/verifyId'
 import { sMail } from '../services/sendMail'
 require('dotenv').config();
 
@@ -101,28 +101,9 @@ const updateOrderStatusByAdmin = async (OrderId, Status) => {
 
     if (OrderId) {
         if (verifyObjectId(OrderId)) {
-            const FindOrderById = await OrderModel.findOneAndUpdate({ _id: OrderId }, { OrderStatus: Status })
-                .populate({
-                    path: 'User',
-                    model: 'RegSchema',
-                    select: 'username email gender'
-                }).
-                populate({
-                    path: 'Category',
-                    model: 'hordingsCategory',
-                    select: 'categoryname description hordingsize image'
-                })
-                .populate({
-                    path: 'Area',
-                    model: 'areaModel',
-                    select: 'areaname pincode'
-                })
-                .populate({
-                    path: 'Package',
-                    model: 'Packages',
-                    select: 'Packagename Price Duration'
-                })
-            console.log("service");
+            const filter = { _id: OrderId }
+            const update = { OrderStatus: Status }
+            const FindOrderById = await OrderModel.findOrderAndUpdate(filter, update, { new: true })
 
             if (FindOrderById.OrderStatus == "accept") {
                 const email = FindOrderById.User.email;
@@ -140,54 +121,17 @@ const updateOrderStatusByAdmin = async (OrderId, Status) => {
         }
         throw new Error("Incorrect Id !")
     }
-    const OrderStatus = await OrderModel.find({ OrderStatus: "pending" })
-        .populate({
-            path: 'User',
-            model: 'RegSchema',
-            select: 'username'
-        }).
-        populate({
-            path: 'Category',
-            model: 'hordingsCategory',
-            select: 'categoryname description hordingsize image'
-        })
-        .populate({
-            path: 'Area',
-            model: 'areaModel',
-            select: 'areaname pincode'
-        })
-        .populate({
-            path: 'Package',
-            model: 'Packages',
-            select: 'Packagename Price Duration'
-        })
+    const query = { OrderStatus: "pending" }
+    const OrderStatus = await OrderModel.FindOrders(query);
 
     console.log("OrderStatus : ", OrderStatus);
     return OrderStatus;
 }
 
 const allUsersOrder = async () => {
-    const viewAllOrdersByAdmin = await OrderModel.find({ OrderStatus: { $in: ["accept", "reject"] } })
-        .populate({
-            path: 'User',
-            model: 'RegSchema',
-            select: 'username'
-        }).
-        populate({
-            path: 'Category',
-            model: 'hordingsCategory',
-            select: 'categoryname description hordingsize image'
-        })
-        .populate({
-            path: 'Area',
-            model: 'areaModel',
-            select: 'areaname pincode'
-        })
-        .populate({
-            path: 'Package',
-            model: 'Packages',
-            select: 'Packagename Price Duration'
-        })
+    const query = { OrderStatus: { $in: ["accept", "reject", "pending"] } };
+    const viewAllOrdersByAdmin = await OrderModel.FindOrders(query)
+
     if (viewAllOrdersByAdmin) {
         return viewAllOrdersByAdmin
     }
@@ -198,7 +142,8 @@ const feedbackService = async (FDB_ID) => {
 
     if (FDB_ID) {
         if (verifyObjectId(FDB_ID)) {
-            const FindFeedbackAndDelete = await FeedbackModel.findByIdAndDelete({ _id: FDB_ID })
+            const query = { _id: FDB_ID };
+            const FindFeedbackAndDelete = await FeedbackModel.deleteFeedBack(query)
             if (!FindFeedbackAndDelete) {
                 throw new Error("Not Found !")
             }
@@ -206,20 +151,13 @@ const feedbackService = async (FDB_ID) => {
         }
         throw new Error("Invalid Id !")
     }
-    const feedback = await FeedbackModel.find()
-        .populate({
-            path: 'User',
-            model: 'RegSchema',
-            select: 'username'
-        })
+    const feedback = await FeedbackModel.FindAllFeedBack()
 
-    if (!feedback) {
-        throw new Error("Not Found Feedback's Messages !")
+    if (!feedback || feedback.length == 0) {
+        throw new Error("No Feedbacks Are Available !")
     }
     return feedback;
 }
-
-
 
 export {
     viewUserService,

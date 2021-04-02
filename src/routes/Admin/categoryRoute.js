@@ -1,16 +1,19 @@
 import express from 'express';
 const router = express.Router();
+import LINK from '../../utils/InternalLinks'
 import { addcategory, viewCategory, editCategory, deleteCategory } from '../../controllers/Admin/categoryController';
-import multerImage from '../../services/imageUpload';
+import multerImage from '../../utils/imageUpload';
 import { adminAuthentication } from '../../services/jwtTokenServices';
 
-router.post('/addcategory', adminAuthentication,
+const { CATEGORY } = LINK;
+
+router.post(CATEGORY.ADD_CATEGORY, adminAuthentication,
     multerImage.upload.single('categoryImage'), addcategory)
 
-router.get('/viewcategory', viewCategory)
+router.get(CATEGORY.VIEW_CATEGORY, viewCategory)
 
-router.put('/editcategory/:categoryId', adminAuthentication, multerImage.upload.single('categoryImage'), editCategory)
+router.put(CATEGORY.UPDATE_CATEGORY, adminAuthentication, multerImage.upload.single('categoryImage'), editCategory)
 
-router.delete('/deletecategory/:categoryId', adminAuthentication, deleteCategory)
+router.delete(CATEGORY.DELETE_CATEGORY, adminAuthentication, deleteCategory)
 
-module.exports = router;    
+module.exports = router;
